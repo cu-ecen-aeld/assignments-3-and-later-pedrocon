@@ -1,4 +1,5 @@
 #!/bin/sh
+# Assignment 1 script.
 
 #set -e
 #set -u
