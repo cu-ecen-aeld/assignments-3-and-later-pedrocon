@@ -1,0 +1,13 @@
+name: learn-github-actions
+on: [push]
+jobs:
+  check-bats-version:
+    runs-on: 
+      group: ubuntu-runners
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodules
+      	run : git submodule update --init --recursive
+      - name: Run full test
+        run: ./full-test.sh
+
