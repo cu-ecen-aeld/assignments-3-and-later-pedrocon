@@ -9,7 +9,7 @@ filesdir=/tmp/aeld-data
 
 if [ $# -lt 2 ]
 then
-	echo "Invalid number of variables specified. This scrpt requires 2 input parameters.\nParameter 1: Directory path. Parameter 2: Search String."
+	echo "Invalid number of variables specified. This script requires 2 input parameters.\nParameter 1: Directory path. Parameter 2: Search String."
 	exit 1
 else
 	if [ -d "$1" ]
