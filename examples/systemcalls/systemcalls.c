@@ -1,4 +1,11 @@
 #include "systemcalls.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+#include <errno.h>
+#include <string.h>
+
 
 /**
  * @param cmd the command to execute with system()
@@ -17,6 +24,11 @@ bool do_system(const char *cmd)
  *   or false() if it returned a failure
 */
 
+    if ( system(cmd) == -1 )
+    	{
+    	return false;
+    	}
+    	
     return true;
 }
 
@@ -33,13 +45,16 @@ bool do_system(const char *cmd)
 *   fork, waitpid, or execv() command, or if a non-zero return value was returned
 *   by the command issued in @param arguments with the specified arguments.
 */
-
 bool do_exec(int count, ...)
 {
+    pid_t pid;
+    int status;
     va_list args;
     va_start(args, count);
     char * command[count+1];
     int i;
+    int ret = -1;
+
     for(i=0; i<count; i++)
     {
         command[i] = va_arg(args, char *);
@@ -58,7 +73,35 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
-
+    
+    pid = fork();
+	if (pid > 0)
+		{		
+		pid = wait (&status);
+		
+		// Return the exit status of the child.
+		if (WIFEXITED (status))
+			{
+			if (WEXITSTATUS (status)==1)
+				{
+				return false; // Child process exited with error.
+				}
+			}
+		}
+	else if (pid==0)
+		{
+		ret = execv(command[0], command);
+		if (ret == -1)
+			{
+			//printf("Error %d: %s\n", errno, strerror(errno));
+			return false;
+			}
+		}
+	else if (pid == -1)
+		{
+		return false;
+		}   
+ 
     va_end(args);
 
     return true;
@@ -71,10 +114,15 @@ bool do_exec(int count, ...)
 */
 bool do_exec_redirect(const char *outputfile, int count, ...)
 {
+    pid_t pid;
+    int status;
     va_list args;
     va_start(args, count);
     char * command[count+1];
     int i;
+    int ret = -1;
+    int fd = -1;
+
     for(i=0; i<count; i++)
     {
         command[i] = va_arg(args, char *);
@@ -84,7 +132,6 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
     // and may be removed
     command[count] = command[count];
 
-
 /*
  * TODO
  *   Call execv, but first using https://stackoverflow.com/a/13784315/1446624 as a refernce,
@@ -92,6 +139,38 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   The rest of the behaviour is same as do_exec()
  *
 */
+	fd = open("redirected.txt", O_WRONLY|O_TRUNC|O_CREAT, 0644);
+	if (fd < 0) { return false; }
+
+    pid = fork();
+	if (pid > 0)
+		{		
+		pid = wait (&status);
+		
+		// Return the exit status of the child.
+		if (WIFEXITED (status))
+			{
+			if (WEXITSTATUS (status)==1)
+				{
+				return false; // Child process exited with error.
+				}
+			}
+		}
+	else if (pid==0)
+		{
+		if (dup2(fd, 1) < 0) { return false; }
+    	close(fd);
+		ret = execv(command[0], command);
+		if (ret == -1)
+			{
+			//printf("Error %d: %s\n", errno, strerror(errno));
+			return false;
+			}
+		}
+	else if (pid == -1)
+		{
+		return false;
+		}   
 
     va_end(args);
 
