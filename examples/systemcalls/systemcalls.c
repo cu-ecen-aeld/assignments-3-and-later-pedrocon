@@ -139,7 +139,7 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   The rest of the behaviour is same as do_exec()
  *
 */
-	fd = open("redirected.txt", O_WRONLY|O_TRUNC|O_CREAT, 0644);
+	fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT, 0644);
 	if (fd < 0) { return false; }
 
     pid = fork();
