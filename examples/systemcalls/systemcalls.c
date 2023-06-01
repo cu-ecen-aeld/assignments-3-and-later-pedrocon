@@ -79,12 +79,11 @@ bool do_exec(int count, ...)
 		{		
 		pid = wait (&status);
 		
-		// Return the exit status of the child.
 		if (WIFEXITED (status))
 			{
-			if (WEXITSTATUS (status)==1)
+			if ( WEXITSTATUS (status) == 1 )
 				{
-				return false; // Child process exited with error.
+				return false;
 				}
 			}
 		}
@@ -94,7 +93,7 @@ bool do_exec(int count, ...)
 		if (ret == -1)
 			{
 			//printf("Error %d: %s\n", errno, strerror(errno));
-			return false;
+			exit(1);
 			}
 		}
 	else if (pid == -1)
