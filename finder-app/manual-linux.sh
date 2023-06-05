@@ -46,7 +46,7 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
 fi
 
 echo "Adding the Image in outdir"
-#cp ./linux-stable/vmlinux {$OUTDIR}/Image
+cp ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image {$OUTDIR}
 
 echo "Creating the staging directory for the root filesystem"
 cd "$OUTDIR"
@@ -94,10 +94,10 @@ ${CROSS_COMPILE}readelf -a bin/busybox | grep "program interpreter"
 ${CROSS_COMPILE}readelf -a bin/busybox | grep "Shared library"
 
 # TODO: Add library dependencies to rootfs (10:39 of video "Linux Root Filesystems")
-cp ~/arm-cross-compiler/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc/lib/ld-linux-aarch64.so.1 ${OUTDIR}/rootfs/lib/
-cp ~/arm-cross-compiler/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc/lib64/libm.so.6 ${OUTDIR}/rootfs/lib64/
-cp ~/arm-cross-compiler/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc/lib64/libresolv.so.2 ${OUTDIR}/rootfs/lib64/
-cp ~/arm-cross-compiler/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc/lib64/libc.so.6 ${OUTDIR}/rootfs/lib64/
+cp ${ORIGINAL_DIR}/lib/ld-linux-aarch64.so.1 ${OUTDIR}/rootfs/lib/
+cp ${ORIGINAL_DIR}/lib64/libm.so.6 ${OUTDIR}/rootfs/lib64/
+cp ${ORIGINAL_DIR}/lib64/libresolv.so.2 ${OUTDIR}/rootfs/lib64/
+cp ${ORIGINAL_DIR}/lib64/libc.so.6 ${OUTDIR}/rootfs/lib64/
 
 # TODO: Make device nodes
 cd ${OUTDIR}/rootfs
